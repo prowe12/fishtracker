@@ -95,7 +95,7 @@ function getSubset(data, species) {
   return data.filter(row => row[2] === species).map(row => [row[3], row[4]]);
 }
 
-function LeafletMap({ compareValue }) {
+function LeafletMap({ compareValue, animate }) {
     // const [heatmapPoints, setHeatmapPoints] = useState([]);
     const [collectedPoints, setCollectedPoints] = useState([]);
     const [atlargePoints, setAtlargePoints] = useState([]);
@@ -154,7 +154,7 @@ function LeafletMap({ compareValue }) {
   
 
     return ( 
-        <MapContainer center={[latitude, longitude]} zoom={18} ref={mapRef} style={{height: "60vh", width: "80vw"}}>
+        <MapContainer center={[latitude, longitude]} zoom={18} ref={mapRef} className = "map-container">
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

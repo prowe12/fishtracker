@@ -4,10 +4,9 @@ import Legend from './components/Legend';
 import './App.css';
 
 function App() {
-  const [
-      compareValue,
-      setCompareValue,
-  ] = useState("option1");
+  const [compareValue, setCompareValue] = useState("option1");
+  const [animate, setAnimate] = useState(false);
+  const [clearAnimation, setClearAnimation] = useState(false);
 
   const handleRadioChange = (
       value
@@ -19,13 +18,15 @@ function App() {
     <div className="app-container">
       <h1>Fish Tracker</h1>
       
-      <div className="map-container"> 
-        <LeafletMap compareValue={compareValue}/>
+      <div className="column-container"> 
+        <LeafletMap compareValue={compareValue} animate={animate} />
+        <div className = "column">
+            <Legend compareValue={compareValue}/>
+        </div>
       </div>
       
-
-      <div className="grid-container">
-        <div className="center">
+      <div className="column-container">
+        <div className="column">
             <div className="container">
                 <div className="radioGroup">
                     <div className="radioButton">
@@ -63,7 +64,20 @@ function App() {
             </div>
         </div>
 
-        <Legend compareValue={compareValue}/>
+        <div className="column">
+            <h2>
+                Animate
+            </h2>
+            <button onClick={() => setAnimate(true)}>
+                Start
+            </button>
+            <button onClick={() => setAnimate(false)}>
+                Stop
+            </button>
+            <button onClick={() => setClearAnimation(true)}>
+                Clear
+            </button>
+        </div>
 
       </div>
     </div>
