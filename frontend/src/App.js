@@ -58,20 +58,6 @@ function App() {
                             Compare fish species
                         </label>
                     </div>
-                    <div className ="radioButton">
-                        <input
-                            type="radio"
-                            id="option3"
-                            value="option3"
-                            checked={compareValue === "option3"}
-                            onChange={() => handleRadioChange("option3")}
-                        />
-                        <label
-                            htmlFor="option3"
-                            className = "radioLabel">
-                            Compare fish
-                        </label>
-                    </div>
                 </div>
             </div>
         </div>
