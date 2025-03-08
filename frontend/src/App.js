@@ -1,5 +1,6 @@
 import React, { useState} from 'react';
 import LeafletMap from './components/LeafletMap';
+import Legend from './components/Legend';
 import './App.css';
 
 function App() {
@@ -62,7 +63,7 @@ function App() {
             </div>
         </div>
 
-        
+        <Legend compareValue={compareValue}/>
 
       </div>
     </div>

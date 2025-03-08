@@ -164,8 +164,8 @@ function LeafletMap({ compareValue }) {
           
           {compareValue === "option1" && (
             <>
-              <FishLayer data={collectedPoints} color='blue' markersize={2} />
-              <FishLayer data={atlargePoints} color='orange' markersize={1} />
+              <FishLayer data={collectedPoints} color='blue' markersize={4} />
+              <FishLayer data={atlargePoints} color='orange' markersize={2} />
             </>
           )}
 

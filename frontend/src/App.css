@@ -112,3 +112,40 @@ div.map-container > div {
     fontSize: "17px";
     color: "#333";
 }
+.nospace {
+    margin-top: "0px";
+    margin-bottom: "0px";
+    padding-top: "0px";
+    padding-bottom: "0px";
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+li {
+  list-style-type: none;
+  text-indent: 0;
+}
+
+.blue {
+  background-color: blue;
+}
+.orange {
+  background-color: orange;
+}
+.green {
+  background-color: green;
+}
+.gray {
+  background-color: gray;
+}
+
+.dot {
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 10px;
+}
