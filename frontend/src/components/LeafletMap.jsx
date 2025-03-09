@@ -10,28 +10,39 @@ import atlargeData from "../data/fish_atlarge.json";
 // import HeatmapLayer from './HeatmapLayer';
 
 // const showHeatmap = false;
-const showTrajectories = true;
 
-
-const CollectedTrajectory = ({ data }) => {
+const CollectedTrajectory = ({ data, animate, clearAnimation }) => {
   const map = useMap();
   const indexRef = useRef(0);
   const circlesRef = useRef([]);
+  const intervalRef = useRef(null);
+
+  
+  useEffect(() => {
+    if (clearAnimation) {
+      circlesRef.current.forEach(circle => map.removeLayer(circle));
+      circlesRef.current = [];
+      indexRef.current = 0;
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    }
+  }, [map, clearAnimation]);
 
   useEffect(() => {
-    if (map && data.length > 0) {
+    if (map && data.length > 0 && animate) {
       const interval = setInterval(() => {
         if (indexRef.current < data.length) {
           const [lon, lat] = data[indexRef.current];
           const circle = L.circle([lat, lon], {
-            radius: 10,
+            radius: 4,
             interactive: false,
             fillOpacity: 0.5,
             stroke: false
           }).addTo(map);
           circlesRef.current.push(circle);
           indexRef.current += 1;
-          console.log(indexRef);
         }
 
         // Fade out and remove circles
@@ -50,15 +61,16 @@ const CollectedTrajectory = ({ data }) => {
         if (indexRef.current >= data.length && circlesRef.current.length === 0) {
           clearInterval(interval);
         }
-      }, 0);
+      }, 1);
+
+      intervalRef.current = interval;
 
       return () => clearInterval(interval);
     }
-  }, [map, data]);
+  }, [map, data, animate]);
 
   return null;
 };
-
 
 const FishLayer = ({ data, color, markersize }) => {
   const map = useMap();
@@ -95,7 +107,7 @@ function getSubset(data, species) {
   return data.filter(row => row[2] === species).map(row => [row[3], row[4]]);
 }
 
-function LeafletMap({ compareValue, animate }) {
+function LeafletMap({ compareValue, animate, clearAnimation }) {
     // const [heatmapPoints, setHeatmapPoints] = useState([]);
     const [collectedPoints, setCollectedPoints] = useState([]);
     const [atlargePoints, setAtlargePoints] = useState([]);
@@ -103,7 +115,6 @@ function LeafletMap({ compareValue, animate }) {
     const [chinookPoints, setChinookPoints] = useState([]);
     const [steelheadPoints, setSteelheadPoints] = useState([]);
     const [unkSpeciesPoints, setUnkSpeciesPoints] = useState([]);
-
 
     const mapRef = useRef(null);
     const latitude = 47.1555;
@@ -149,26 +160,28 @@ function LeafletMap({ compareValue, animate }) {
     useEffect(() => {
       setPoints(collectedData.data, 'unknown', setUnkSpeciesPoints);
       setPoints(atlargeData.data, 'unknown', setUnkSpeciesPoints);
-      console.log()
     }, [collectedPoints, atlargePoints]);
   
 
     return ( 
-        <MapContainer center={[latitude, longitude]} zoom={18} ref={mapRef} className = "map-container">
+        <MapContainer center={[latitude, longitude]} zoom={17} ref={mapRef} className = "map-container">
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           {/* Todo: move this elsewhere */}
           {/* {showHeatmap && <HeatmapLayer data={heatmapData} />} */}
-          
+
+          {/* Show the fish tracks with time */}
+          <CollectedTrajectory data={collectedPoints} animate={animate} clearAnimation={clearAnimation} />
+
+          {/* Plot all fish positions color-coded by group */}
           {compareValue === "option1" && (
             <>
               <FishLayer data={collectedPoints} color='blue' markersize={4} />
               <FishLayer data={atlargePoints} color='orange' markersize={2} />
             </>
           )}
-
           {compareValue === "option2" && (
             <>
             <FishLayer data={cohoPoints} color='blue' markersize={2} />

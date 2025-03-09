@@ -1,4 +1,4 @@
-import React, { useState} from 'react';
+import React, { useState, useEffect} from 'react';
 import LeafletMap from './components/LeafletMap';
 import Legend from './components/Legend';
 import './App.css';
@@ -14,12 +14,31 @@ function App() {
       setCompareValue(value);
   };
 
+  const startAnimation = () => {
+    // Whenever we start an animation, also set the clearAnimation variable to false so we can clear it later.
+    setClearAnimation(false);
+    setAnimate(true);
+  };
+
+  const stopAnimation = () => {
+     // Whenever we stop an animation, also set the clearAnimation variable to false in case it is currently true.
+    setClearAnimation(false);
+    setAnimate(false);
+  };
+
+  const handleClearAnimation = () => {
+    // When we click the clear button, also stop the animation.
+    setClearAnimation(true);
+    setAnimate(false);
+  };
+
+
   return (
     <div className="app-container">
       <h1>Fish Tracker</h1>
       
       <div className="column-container"> 
-        <LeafletMap compareValue={compareValue} animate={animate} />
+        <LeafletMap compareValue={compareValue} animate={animate} clearAnimation={clearAnimation}/>
         <div className = "column">
             <Legend compareValue={compareValue}/>
         </div>
@@ -30,7 +49,7 @@ function App() {
             <div className="container">
                 <div className="radioGroup">
                     <div className="radioButton">
-                      <h2>Choose groups to compare</h2>
+                      <h2>Show groups</h2>
                         <input
                             type="radio"
                             id="option1"
@@ -41,7 +60,7 @@ function App() {
                         <label
                             htmlFor="option1"
                             className = "radioLabel">
-                            Compare collected to at-large fish
+                            Collected vs At Large
                         </label>
                     </div>
                     <div className="radioButton">
@@ -57,10 +76,25 @@ function App() {
                         <label
                             htmlFor="option2"
                             className = "radioLabel">
-                            Compare fish species
+                            Fish by Species
                         </label>
                     </div>
-                </div>
+                    <div className="radioButton">
+                        <input
+                            type="radio"
+                            id="option2"
+                            value="option2"
+                            checked={compareValue ==="option3"}
+                            onChange={() =>
+                                handleRadioChange("option3"
+                            )}
+                        />
+                        <label
+                            htmlFor="option3"
+                            className = "radioLabel">
+                            None
+                        </label>
+                    </div>                </div>
             </div>
         </div>
 
@@ -68,13 +102,13 @@ function App() {
             <h2>
                 Animate
             </h2>
-            <button onClick={() => setAnimate(true)}>
+            <button onClick={startAnimation}>
                 Start
             </button>
-            <button onClick={() => setAnimate(false)}>
+            <button onClick={() => {setAnimate(false)}}>
                 Stop
             </button>
-            <button onClick={() => setClearAnimation(true)}>
+            <button onClick={handleClearAnimation}>
                 Clear
             </button>
         </div>
