@@ -3,13 +3,10 @@ import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
-
 import collectedData from "../data/fish_collected.json";
 import atlargeData from "../data/fish_atlarge.json";
-// import heatmapData from "../data/collected_histxy.json";
-// import HeatmapLayer from './HeatmapLayer';
+import Legend from './Legend';
 
-// const showHeatmap = false;
 
 const CollectedTrajectory = ({ data, animate, clearAnimation }) => {
   const map = useMap();
@@ -17,7 +14,6 @@ const CollectedTrajectory = ({ data, animate, clearAnimation }) => {
   const circlesRef = useRef([]);
   const intervalRef = useRef(null);
 
-  
   useEffect(() => {
     if (clearAnimation) {
       circlesRef.current.forEach(circle => map.removeLayer(circle));
@@ -107,10 +103,13 @@ function getSubset(data, species) {
   return data.filter(row => row[2] === species).map(row => [row[3], row[4]]);
 }
 
-function LeafletMap({ compareValue, animate, clearAnimation }) {
+  function LeafletMap({ compareValue, showPoints, animate, clearAnimation, groups, species }) {
     // const [heatmapPoints, setHeatmapPoints] = useState([]);
     const [collectedPoints, setCollectedPoints] = useState([]);
     const [atlargePoints, setAtlargePoints] = useState([]);
+    const [cohoCollPoints, setCohoCollPoints] = useState([]);
+    const [chinookCollPoints, setChinookCollPoints] = useState([]);
+    const [steelheadCollPoints, setSteelheadCollPoints] = useState([]);
     const [cohoPoints, setCohoPoints] = useState([]);
     const [chinookPoints, setChinookPoints] = useState([]);
     const [steelheadPoints, setSteelheadPoints] = useState([]);
@@ -119,11 +118,6 @@ function LeafletMap({ compareValue, animate, clearAnimation }) {
     const mapRef = useRef(null);
     const latitude = 47.1555;
     const longitude = -122.683;
-  
-    // useEffect(() => {
-    //   const points = heatmapData.data.map(row => [row[0], row[1], row[2]]);
-    //   setHeatmapPoints(points);
-    // }, []);
 
     useEffect(() => {
       const points = collectedData.data.map(row => [row[3], row[4]]);
@@ -143,25 +137,29 @@ function LeafletMap({ compareValue, animate, clearAnimation }) {
     };
   
     useEffect(() => {
-      setPoints(collectedData.data, 'Coho', setCohoPoints);
-      setPoints(atlargeData.data, 'Coho', setCohoPoints);
-    }, [collectedPoints, atlargePoints]);
-  
+      const speciesList = [
+        { species: 'Coho', setState: setCohoCollPoints },
+        { species: 'Chinook', setState: setChinookCollPoints },
+        { species: 'Steelhead', setState: setSteelheadCollPoints },
+      ];
+      speciesList.forEach(({ species, setState }) => {
+        setPoints(collectedData.data, species, setState);
+      });
+    }, [collectedPoints]);
+
     useEffect(() => {
-      setPoints(collectedData.data, 'Chinook', setChinookPoints);
-      setPoints(atlargeData.data, 'Chinook', setChinookPoints);
-    }, [collectedPoints, atlargePoints]);
-  
-    useEffect(() => {
-      setPoints(collectedData.data, 'Steelhead', setSteelheadPoints);
-      setPoints(atlargeData.data, 'Steelhead', setSteelheadPoints);
-    }, [collectedPoints, atlargePoints]);
-  
-    useEffect(() => {
-      setPoints(collectedData.data, 'unknown', setUnkSpeciesPoints);
-      setPoints(atlargeData.data, 'unknown', setUnkSpeciesPoints);
-    }, [collectedPoints, atlargePoints]);
-  
+      const speciesList = [
+        { species: 'Coho', setState: setCohoPoints },
+        { species: 'Chinook', setState: setChinookPoints },
+        { species: 'Steelhead', setState: setSteelheadPoints },
+        { species: 'unknown', setState: setUnkSpeciesPoints },
+      ];
+
+      speciesList.forEach(({ species, setState }) => {
+        setPoints(atlargeData.data, species, setState);
+      });
+    }, [atlargePoints]);
+
 
     return ( 
         <MapContainer center={[latitude, longitude]} zoom={17} ref={mapRef} className = "map-container">
@@ -169,28 +167,56 @@ function LeafletMap({ compareValue, animate, clearAnimation }) {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          {/* Todo: move this elsewhere */}
-          {/* {showHeatmap && <HeatmapLayer data={heatmapData} />} */}
 
           {/* Show the fish tracks with time */}
           <CollectedTrajectory data={collectedPoints} animate={animate} clearAnimation={clearAnimation} />
 
-          {/* Plot all fish positions color-coded by group */}
-          {compareValue === "option1" && (
+          {/* Option 1: Plot fish positions color-coded by group */}
+          {showPoints && compareValue === "option1" && (
             <>
               <FishLayer data={collectedPoints} color='blue' markersize={4} />
               <FishLayer data={atlargePoints} color='orange' markersize={2} />
             </>
           )}
-          {compareValue === "option2" && (
+
+          {/* Option 2: Plot fish positions color-coded by species */}
+          {showPoints && compareValue === "option2" && (
             <>
             <FishLayer data={cohoPoints} color='blue' markersize={2} />
             <FishLayer data={chinookPoints} color='orange' markersize={4} />
             <FishLayer data={steelheadPoints} color='green' markersize={4} />
             <FishLayer data={unkSpeciesPoints} color='gray' markersize={2} />
             </>
-          )}         
-            
+          )}        
+
+          {/* Option 3: Plot fish positions color-coded by group and species */}
+          {showPoints && compareValue === "option3" && (
+            <>
+            <FishLayer data={steelheadCollPoints} color='brown' markersize={4} />
+            </>
+          )}
+          {/* {showPoints && compareValue === "option3" && (
+            <>
+            <FishLayer data={cohoCollPoints} color='blue' markersize={2} />
+            <FishLayer data={chinookCollPoints} color='brown' markersize={4} />
+            <FishLayer data={steelheadCollPoints} color='green' markersize={4} />
+            <FishLayer data={cohoPoints} color='cyan' markersize={2} />
+            <FishLayer data={chinookPoints} color='salmon' markersize={4} />
+            <FishLayer data={steelheadPoints} color='yellowgreen' markersize={4} />
+            <FishLayer data={unkSpeciesPoints} color='slategray' markersize={2} />
+            </>
+          )}     */}
+
+          {/* Option 4: Plot fish positions with no color-coding */}
+          {showPoints && compareValue === "option4" && (
+            <>
+            <FishLayer data={cohoPoints} color='blue' markersize={2} />
+            <FishLayer data={chinookPoints} color='blue' markersize={4} />
+            <FishLayer data={steelheadPoints} color='blue' markersize={4} />
+            <FishLayer data={unkSpeciesPoints} color='blue' markersize={2} />
+            </>
+          )}     
+        <Legend groups={groups} species={species} compareValue={compareValue} />
         </MapContainer>
     );
 };
