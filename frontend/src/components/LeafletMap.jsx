@@ -6,30 +6,8 @@ import L from "leaflet";
 import collectedData from "../data/fish_collected.json";
 import atlargeData from "../data/fish_atlarge.json";
 import Legend from './Legend';
+import getColors from '../utils/getColors';
 
-function getColors(category) {
-  switch (category) {
-      case 'collected': return 'blue';
-      case 'atlarge': return 'orange';
-    
-      case 'Coho': return 'blue';
-      case 'Chinook': return 'brown';
-      case 'Steelhead': return 'green';
-      case 'Unknown': return 'gray';
-      
-      case 'collected Coho': return 'blue';
-      case 'collected Chinook': return 'brown';
-      case 'collected Steelhead': return 'green';
-
-      case 'atlarge Coho': return 'cyan';
-      case 'atlarge Chinook': return 'salmon';
-      case 'atlarge Steelhead': return 'greenyellow';
-      case 'atlarge Unknown': return 'gray';
-
-      case "All Fish": return 'blue';
-      default: return 'red';
-  }
-}
 
 function CollectedTrajectory({ data, animate, clearAnimation }) {
   const map = useMap();
@@ -305,7 +283,7 @@ function getSubset(data, species) {
               ))}
             </>
           )}     
-        <Legend groups={groups} species={species} compareValue={compareValue} getColors={getColors} />
+        <Legend groups={groups} species={species} compareValue={compareValue} />
         </MapContainer>
     );
 };

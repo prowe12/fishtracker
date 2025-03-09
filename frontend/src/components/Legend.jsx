@@ -3,7 +3,9 @@ import { useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
-const Legend = ({groups, species, compareValue, getColors}) => {
+import getColors from '../utils/getColors';
+
+const Legend = ({groups, species, compareValue}) => {
     const map = useMap();
   
     useEffect(() => {
@@ -49,7 +51,7 @@ const Legend = ({groups, species, compareValue, getColors}) => {
           legend.remove();
         };
       }
-    }, [map, groups, species, compareValue, getColors]);
+    }, [map, groups, species, compareValue]);
   
     return null;
   };
