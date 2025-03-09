@@ -20,7 +20,6 @@ Important notes:
  - Only fish collected at the "Final Collection Point" under the Site Name 
    column should be considered as having successfully located the collection 
    point for this study.
-    
 """
 
 import pandas as pd
@@ -48,7 +47,9 @@ def get_tag_dicts(pit_tags: pd.Series, atags: pd.Series) -> list[dict, dict]:
 
 def create_df_for_saving(dfin: pd.DataFrame, tag0: dict[str]) -> pd.DataFrame:
     """
-    Create dataframe for collected fish including datetime, tag, x, y, and atag: remove MSE and Tag_code to save space, append fish species, convert x and y to lat and lon
+    Create dataframe for collected fish including datetime, tag, x, y, and
+    atag: remove MSE and Tag_code to save space, append fish species,
+    convert x and y to lat and lon
     """
 
     dfout = dfin[["Date_time", "atag", "X", "Y", "Z"]].copy()
@@ -71,6 +72,17 @@ def create_df_for_saving(dfin: pd.DataFrame, tag0: dict[str]) -> pd.DataFrame:
     return dfout
 
 
+def save_file_by_species(df: pd.DataFrame, fname_head: str):
+    """Loop over species in a dataframe and create a json file for each"""
+    species_array = df["species"].unique()
+    for species in species_array:
+        fname = f"{fname_head}_{species}.json"
+        print(f"Saving file {fname}")
+        fish_tosave = df[df["species"] == species]
+        fish_tosave.to_json(fname, orient="split", indent=4)
+
+
+# # # # # # # #   INPUT PARAMETERS   # # # # # # # # # #
 # Directories and file names
 DIREC = ""
 FISHPOS_FILE = "fishPos_20190604.csv"
@@ -89,11 +101,18 @@ AVERAGING_TIME = "10min"
 MSE_THRESHOLD = 10  # Max allowed MSE
 MAX_BURST_SPEED = 7  # feet/s
 
+# Parameters for controlling output
+MAKE_FIGURES = False  # Create visualizations
+SAVE_HEATMAPS = False
+SAVE_BY_SPECIES = False
+SAVE_BY_COLLECTED = False
+# # # # # # # # # # # # # # # # # #  # # # # # # # # # #
+
+
 # Load in the data
 fish_pos = pd.read_csv(DIREC + FISHPOS_FILE)
 release = pd.read_excel(DIREC + PIT_FILE, sheet_name="Release")
 collect = pd.read_excel(DIREC + PIT_FILE, sheet_name="Collection")
-
 
 # Clean collected data
 # Only include fish collected where Site Name is "Final Collection Point "
@@ -104,6 +123,8 @@ collect.loc[:, "Detection Time"] = pd.to_datetime(collect["Detection Time"])
 # - get only cases with low MSE
 # - only retain movements within a certain speed feet/seconds
 # - create abbreviated acoustic tags (atag)
+
+# Get cases with low MSE
 fish = fish_pos[fish_pos["MSE"] < MSE_THRESHOLD].copy()
 fish.reset_index(drop=True, inplace=True)
 fish["Date_time"] = pd.to_datetime(fish["Date_time"])  # SLOW!
@@ -149,48 +170,18 @@ for tag, group in filtered_fish.groupby("Tag_code"):
     resampled_group["Tag_code"] = tag
     resampled_fish = pd.concat([resampled_fish, resampled_group])
 
-# Remove rows with NAN
 resampled_fish.dropna(subset=["X"], inplace=True)
-
-# Reset the index of the resampled DataFrame (optional)
 resampled_fish.reset_index(drop=True, inplace=True)
-
-
-# Reset the index of the new DataFrame
 fish = resampled_fish
 
-# tags = fish["Tag_code"].unique()
-
-# # Plot all the trajectories
-# plt.figure(num=2, clear=True)
-# for tag in tags:
-#     fish0 = fish[fish["Tag_code"] == tag]
-#     plt.scatter(fish0["X"], fish0["Y"], alpha=0.1, s=0.1)
-#     plt.pause(0.1)
-
-
-# idel = []
-# for tag in atags:
-#     fish0 = fish[fish["Tag_code"] == tag]
-#     dtime = fish0["Date_time"].diff().apply(lambda x: x.total_seconds())
-#     speed =
-#     speed = speed.tolist()
-#     for i in range(1, len(fish0)):
-#         speed = fish0["X"].diff() / dtime
-#         while speed[i] < 7:
-#             continue
-#         fish0[i]
-
-#     idel += list(fish0.index[ibad])
-# fish.drop(idel)
-
+# Add abbreviated tag names
 fish.loc[:, "atag"] = fish["Tag_code"].str[3:7].str.lower()
 atags = fish["atag"].unique()
 
 # Get the accoustic tags corresponding to collected fish and at-large fish
 pit_collected = collect["Tag Code"].unique()
 
-# Use a mapping here
+# TODO: Use a mapping here
 p_to_a, a_to_pit = get_tag_dicts(release["Tag Code"], release["Acoustic Tag"])
 
 atag_collected = [p_to_a[p] for p in pit_collected if p in p_to_a]
@@ -198,119 +189,159 @@ atag_atlarge = np.setdiff1d(atags, atag_collected)
 fish_collected = fish[fish["atag"].isin(atag_collected)]
 fish_atlarge = fish[fish["atag"].isin(atag_atlarge)]
 
-# # QC: Plot all the ending points for collected fish
-# plt.figure(num=2, clear=True)
-# plt.figure(num=3, clear=True)
-# for tag, pit_tag in zip(atag_collected, pit_collected):
-#     fish0 = fish_collected[fish_collected["atag"] == tag]
-#     det_time = collect[collect["Tag Code"] == pit_tag]["Detection Time"]
-#     if len(fish0) > 0:
-#         plt.figure(2)
-#         plt.plot(fish0["X"].iloc[-1], fish0["Y"].iloc[-1], ".")
-#         plt.figure(3)
-#         plt.plot(fish0["Date_time"].iloc[-1], det_time, ".")
-
-# minx = fish["Date_time"].min()
-# maxx = fish["Date_time"].max()
-# plt.figure(3)
-# plt.plot([minx, maxx], [minx, maxx])
-# plt.xlabel("Date final position recorded")
-# plt.ylabel("Collection Date")
-# plt.tight_layout()
-
-# Create hists for the at-large fish and the collected fish
-fig, axes = plt.subplots(num=2, clear=True, nrows=2, ncols=3)
-fish_collected["X"].hist(ax=axes[0, 0])
-fish_collected["Y"].hist(ax=axes[0, 1])
-fish_collected["Z"].hist(ax=axes[0, 2])
-fish_atlarge["X"].hist(ax=axes[1, 0])
-fish_atlarge["Y"].hist(ax=axes[1, 1])
-fish_atlarge["Z"].hist(ax=axes[1, 2])
-axes[0, 0].set_title("X")
-axes[0, 1].set_title("Y")
-axes[0, 2].set_title("Z")
-plt.tight_layout()
-
-# Create scatter plots of the collected and at-large fish positions
-fig, axes = plt.subplots(num=2, clear=True, nrows=2, ncols=3)
-for tag in atag_collected:
-    fish0 = fish_collected[fish_collected["atag"] == tag]
-    axes[0, 2].scatter(fish0["Y"], fish0["Z"], alpha=0.1, s=0.1, c="blue")
-    axes[0, 1].scatter(fish0["X"], fish0["Z"], alpha=0.1, s=0.1, c="orange")
-    axes[0, 0].scatter(fish0["X"], fish0["Y"], alpha=0.1, s=0.1, c="green")
-
-for tag in atag_atlarge:
-    fish0 = fish_atlarge[fish_atlarge["atag"] == tag]
-    axes[1, 2].scatter(fish0["Y"], fish0["Z"], alpha=0.1, s=0.1, c="blue")
-    axes[1, 1].scatter(fish0["X"], fish0["Z"], alpha=0.1, s=0.1, c="orange")
-    axes[1, 0].scatter(fish0["X"], fish0["Y"], alpha=0.1, s=0.1, c="green")
-
-axes[0, 1].invert_yaxis()
-axes[0, 2].invert_yaxis()
-axes[1, 1].invert_yaxis()
-axes[1, 2].invert_yaxis()
-
-fig = plt.figure(num=3, clear=True)
-plt.scatter(
-    fish_collected["X"], fish_collected["Y"], alpha=0.01, s=0.1, c="blue"
-)
-plt.scatter(
-    fish_atlarge["X"], fish_atlarge["Y"], alpha=0.01, s=0.1, c="orange"
-)
-
-
 tag_to_species = release.set_index("Acoustic Tag")["Species Name"].to_dict()
 if np.nan in tag_to_species:
     tag_to_species.pop(np.nan)
 
-# Save collected fish
-fish_tosave = create_df_for_saving(fish_collected, tag_to_species)
-fish_tosave.to_json(FNAME_COLLECTED, orient="split", indent=4)
-
-# Save at-large fish
-fish_tosave = create_df_for_saving(fish_atlarge, tag_to_species)
-fish_tosave.to_json(FNAME_ATLARGE, orient="split", indent=4)
+# Reformat the dataframes for output
+df_collected = create_df_for_saving(fish_collected, tag_to_species)
+df_atlarge = create_df_for_saving(fish_atlarge, tag_to_species)
 
 
-# fmt: off
-fig, axes = plt.subplots(num=1, clear=True, nrows=2, ncols=3)
+if SAVE_BY_SPECIES:
+    # Save fish by species for collected and at-large fish
+    save_file_by_species(df_collected, "collected")
+    save_file_by_species(df_atlarge, "atlarge")
 
-bins = 40
-norm = True
-axes[0, 0].hist2d(fish_collected["X"], fish_collected["Y"], bins=bins, density=norm)
-axes[0, 1].hist2d(fish_collected["X"], fish_collected["Z"], bins=bins, density=norm)
-axes[0, 2].hist2d(fish_collected["Y"], fish_collected["Z"], bins=bins, density=norm)
-
-axes[1, 0].hist2d(fish_atlarge["X"], fish_atlarge["Y"], bins=bins, density=norm)
-axes[1, 1].hist2d(fish_atlarge["X"], fish_atlarge["Z"], bins=bins, density=norm)
-axes[1, 2].hist2d(fish_atlarge["Y"], fish_atlarge["Z"], bins=bins, density=norm)
-
-plt.tight_layout()
+if SAVE_BY_COLLECTED:
+    df_collected.to_json(FNAME_COLLECTED, orient="split", indent=4)
+    df_atlarge.to_json(FNAME_ATLARGE, orient="split", indent=4)
 
 
-# Save heatmaps for collect/at-large to json files
-collectedfile = "collected_hist.json"
-atlargefile = "atlarges_hist.json"
+if SAVE_HEATMAPS:
+    # Save heatmaps for collect/at-large to json files
+    collectedfile = "collected_hist.json"
+    atlargefile = "atlarges_hist.json"
 
-fname = "collected_histxy.json"
-data = plt.hist2d(fish_collected["X"], fish_collected["Y"], bins=bins, density=norm)
-xvals = (data[1][:-1] + data[1][1:])/2
-yvals = (data[2][:-1] + data[2][1:])/2
+    fname = "collected_histxy.json"
+    bins = 40
+    norm = True
+    data = plt.hist2d(
+        fish_collected["X"], fish_collected["Y"], bins=bins, density=norm
+    )
+    xvals = (data[1][:-1] + data[1][1:]) / 2
+    yvals = (data[2][:-1] + data[2][1:]) / 2
 
-origin = Point(LATITUDE, LONGITUDE)
-dx = xvals[2]-xvals[1]
-lat = distance(miles=dx * FT_TO_MILE).destination(origin, 0).latitude
-lats = [distance(miles=x * FT_TO_MILE).destination(origin, 0).latitude for x in xvals]
-lons = [distance(miles=y * FT_TO_MILE).destination(origin, 90).longitude for y in yvals]
-lats = np.array(lats).reshape(-1, 1)
+    origin = Point(LATITUDE, LONGITUDE)
+    dx = xvals[2] - xvals[1]
+    lat = distance(miles=dx * FT_TO_MILE).destination(origin, 0).latitude
+    lats = [
+        distance(miles=x * FT_TO_MILE).destination(origin, 0).latitude
+        for x in xvals
+    ]
+    lons = [
+        distance(miles=y * FT_TO_MILE).destination(origin, 90).longitude
+        for y in yvals
+    ]
+    lats = np.array(lats).reshape(-1, 1)
 
-dat = np.empty((0,3))
-n = len(lats)
-for i,y in enumerate(lons):
-    z = data[0][i, :][:, np.newaxis]  
-    dat = np.vstack([dat, np.hstack([lats, y*np.ones((n, 1)), z])])
-# Scale intensities to be between 0 and 1
-dat[:,2] = dat[:,2]/np.max(dat[:,2])
+    dat = np.empty((0, 3))
+    n = len(lats)
+    for i, y in enumerate(lons):
+        z = data[0][i, :][:, np.newaxis]
+        dat = np.vstack([dat, np.hstack([lats, y * np.ones((n, 1)), z])])
+    # Scale intensities to be between 0 and 1
+    dat[:, 2] = dat[:, 2] / np.max(dat[:, 2])
 
-df = pd.DataFrame(dat, columns=['x','y','intensity'])
-df.to_json(fname, orient="split", indent=4)
+    df = pd.DataFrame(dat, columns=["x", "y", "intensity"])
+    df.to_json(fname, orient="split", indent=4)
+
+
+# Quality control plot and visualizations
+if MAKE_FIGURES:
+
+    # Plot all fish trajectories by fish
+    tags = fish["Tag_code"].unique()
+    plt.figure(num=1, clear=True)
+    for tag in tags:
+        fish0 = fish[fish["Tag_code"] == tag]
+        plt.scatter(fish0["X"], fish0["Y"], alpha=0.1, s=0.1)
+        plt.pause(0.1)
+
+    # Create 2D plots of fish locations
+    # fmt: off
+    fig, axes = plt.subplots(num=2, clear=True, nrows=2, ncols=3)
+    bins = 40
+    norm = True
+    axes[0, 0].hist2d(fish_collected["X"], fish_collected["Y"], bins=bins, density=norm)
+    axes[0, 1].hist2d(fish_collected["X"], fish_collected["Z"], bins=bins, density=norm)
+    axes[0, 2].hist2d(fish_collected["Y"], fish_collected["Z"], bins=bins, density=norm)
+    
+    axes[1, 0].hist2d(fish_atlarge["X"], fish_atlarge["Y"], bins=bins, density=norm)
+    axes[1, 1].hist2d(fish_atlarge["X"], fish_atlarge["Z"], bins=bins, density=norm)
+    axes[1, 2].hist2d(fish_atlarge["Y"], fish_atlarge["Z"], bins=bins, density=norm)
+    
+    plt.tight_layout()
+    # fmt: on
+
+    # Scatter plots of collected and at-large fish (one plot)
+    fig = plt.figure(num=3, clear=True)
+    plt.scatter(
+        fish_collected["X"], fish_collected["Y"], alpha=0.2, s=0.2, c="blue"
+    )
+    plt.scatter(
+        fish_atlarge["X"], fish_atlarge["Y"], alpha=0.2, s=0.2, c="orange"
+    )
+
+    # Scatter plots of collected and at-large fish positions (multiple plots)
+    # fmt: off
+    fig, axes = plt.subplots(num=4, clear=True, nrows=2, ncols=3)
+    for tag in atag_collected:
+        fish0 = fish_collected[fish_collected["atag"] == tag]
+        axes[0, 0].scatter(fish0["X"], fish0["Y"], alpha=0.1, s=0.1, c="green")
+        axes[0, 1].scatter(fish0["X"], fish0["Z"], alpha=0.1, s=0.1, c="orange")
+        axes[0, 2].scatter(fish0["Y"], fish0["Z"], alpha=0.1, s=0.1, c="blue")
+
+
+    for tag in atag_atlarge:
+        fish0 = fish_atlarge[fish_atlarge["atag"] == tag]
+        axes[1, 0].scatter(fish0["X"], fish0["Y"], alpha=0.1, s=0.1, c="green")
+        axes[1, 1].scatter(fish0["X"], fish0["Z"], alpha=0.1, s=0.1, c="orange")
+        axes[1, 2].scatter(fish0["Y"], fish0["Z"], alpha=0.1, s=0.1, c="blue")
+
+    for i in range(2):
+        axes[i, 0].set_xlabel("X")
+        axes[i, 0].set_ylabel("Y")
+        axes[i, 1].set_xlabel("X")
+        axes[i, 2].set_xlabel("Y")
+        for j in range(1,3):
+            axes[i, j].set_ylabel('Z')
+            axes[i, j].invert_yaxis()
+    plt.tight_layout()
+    # fmt: on
+
+    # Plot all the ending points for collected fish
+    plt.figure(num=5, clear=True)
+    for tag, pit_tag in zip(atag_collected, pit_collected):
+        fish0 = fish_collected[fish_collected["atag"] == tag]
+        if len(fish0) > 0:
+            plt.plot(fish0["X"].iloc[-1], fish0["Y"].iloc[-1], ".")
+
+    # Plot collection data vs final position
+    plt.figure(num=6, clear=True)
+    for tag, pit_tag in zip(atag_collected, pit_collected):
+        fish0 = fish_collected[fish_collected["atag"] == tag]
+        det_time = collect[collect["Tag Code"] == pit_tag]["Detection Time"]
+        if len(fish0) > 0:
+            plt.plot(fish0["Date_time"].iloc[-1], det_time, ".")
+
+    minx = fish["Date_time"].min()
+    maxx = fish["Date_time"].max()
+    plt.figure(5)
+    plt.plot([minx, maxx], [minx, maxx])
+    plt.xlabel("Date final position recorded")
+    plt.ylabel("Collection Date")
+    plt.tight_layout()
+
+    # Create hists for the at-large fish and the collected fish
+    fig, axes = plt.subplots(num=7, clear=True, nrows=2, ncols=3)
+    fish_collected["X"].hist(ax=axes[0, 0])
+    fish_collected["Y"].hist(ax=axes[0, 1])
+    fish_collected["Z"].hist(ax=axes[0, 2])
+    fish_atlarge["X"].hist(ax=axes[1, 0])
+    fish_atlarge["Y"].hist(ax=axes[1, 1])
+    fish_atlarge["Z"].hist(ax=axes[1, 2])
+    axes[0, 0].set_title("X")
+    axes[0, 1].set_title("Y")
+    axes[0, 2].set_title("Z")
+    plt.tight_layout()
