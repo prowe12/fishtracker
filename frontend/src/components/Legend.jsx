@@ -17,7 +17,7 @@ function Legend({ compareValue }) {
             {compareValue === 'option2' && (
                 <div>
                     <h2>Legend</h2>
-                    <ul>
+                    <ul className = 'no-indent'>
                         <li><span className='blue dot'></span>Coho</li>
                         <li><span className='orange dot'></span>Chinook</li>
                         <li><span className='green dot'></span>Steelhead</li>
