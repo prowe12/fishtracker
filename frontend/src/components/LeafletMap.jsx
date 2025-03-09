@@ -7,8 +7,31 @@ import collectedData from "../data/fish_collected.json";
 import atlargeData from "../data/fish_atlarge.json";
 import Legend from './Legend';
 
+function getColors(category) {
+  switch (category) {
+      case 'collected': return 'blue';
+      case 'atlarge': return 'orange';
+    
+      case 'Coho': return 'blue';
+      case 'Chinook': return 'brown';
+      case 'Steelhead': return 'green';
+      case 'Unknown': return 'gray';
+      
+      case 'collected Coho': return 'blue';
+      case 'collected Chinook': return 'brown';
+      case 'collected Steelhead': return 'green';
 
-const CollectedTrajectory = ({ data, animate, clearAnimation }) => {
+      case 'atlarge Coho': return 'cyan';
+      case 'atlarge Chinook': return 'salmon';
+      case 'atlarge Steelhead': return 'greenyellow';
+      case 'atlarge Unknown': return 'gray';
+
+      case "All Fish": return 'blue';
+      default: return 'red';
+  }
+}
+
+function CollectedTrajectory({ data, animate, clearAnimation }) {
   const map = useMap();
   const indexRef = useRef(0);
   const circlesRef = useRef([]);
@@ -173,50 +196,116 @@ function getSubset(data, species) {
 
           {/* Option 1: Plot fish positions color-coded by group */}
           {showPoints && compareValue === "option1" && (
-            <>
-              <FishLayer data={collectedPoints} color='blue' markersize={4} />
-              <FishLayer data={atlargePoints} color='orange' markersize={2} />
-            </>
-          )}
+              <>
+              {groups.map(group => (
+                species.map(species0 => {
+                  const dataKey = `${group} ${species0}`;
+                  const dataPoints = {
+                    "collected Coho": cohoCollPoints,
+                    "collected Chinook": chinookCollPoints,
+                    "collected Steelhead": steelheadCollPoints,
+                    "atlarge Coho": cohoPoints,
+                    "atlarge Chinook": chinookPoints,
+                    "atlarge Steelhead": steelheadPoints,
+                    "atlarge Unknown": unkSpeciesPoints
+                  }[dataKey];
+                  return dataPoints && (
+                    <FishLayer
+                      key={dataKey}
+                      data={dataPoints}
+                      color={getColors(group)}
+                      markersize={species0 === "Coho" ? 2 : 4}
+                    />
+                  );
+                })
+              ))}
+              </>
+            )}
 
           {/* Option 2: Plot fish positions color-coded by species */}
           {showPoints && compareValue === "option2" && (
             <>
-            <FishLayer data={cohoPoints} color='blue' markersize={2} />
-            <FishLayer data={chinookPoints} color='orange' markersize={4} />
-            <FishLayer data={steelheadPoints} color='green' markersize={4} />
-            <FishLayer data={unkSpeciesPoints} color='gray' markersize={2} />
+            {groups.map(group => (
+                species.map(species0 => {
+                  const dataKey = `${group} ${species0}`;
+                  const dataPoints = {
+                    "collected Coho": cohoCollPoints,
+                    "collected Chinook": chinookCollPoints,
+                    "collected Steelhead": steelheadCollPoints,
+                    "atlarge Coho": cohoPoints,
+                    "atlarge Chinook": chinookPoints,
+                    "atlarge Steelhead": steelheadPoints,
+                    "atlarge Unknown": unkSpeciesPoints
+                  }[dataKey];
+                  return dataPoints && (
+                    <FishLayer
+                      key={dataKey}
+                      data={dataPoints}
+                      color={getColors(species0)}
+                      markersize={species0 === "Coho" ? 2 : 4}
+                    />
+                  );
+                })
+              ))}
             </>
-          )}        
+          )}
 
           {/* Option 3: Plot fish positions color-coded by group and species */}
           {showPoints && compareValue === "option3" && (
             <>
-            <FishLayer data={steelheadCollPoints} color='brown' markersize={4} />
+              {groups.map(group => (
+                species.map(species0 => {
+                  const dataKey = `${group} ${species0}`;
+                  const dataPoints = {
+                    "collected Coho": cohoCollPoints,
+                    "collected Chinook": chinookCollPoints,
+                    "collected Steelhead": steelheadCollPoints,
+                    "atlarge Coho": cohoPoints,
+                    "atlarge Chinook": chinookPoints,
+                    "atlarge Steelhead": steelheadPoints,
+                    "atlarge Unknown": unkSpeciesPoints
+                  }[dataKey];
+                  return dataPoints && (
+                    <FishLayer
+                      key={dataKey}
+                      data={dataPoints}
+                      color={getColors(dataKey)}
+                      markersize={species0 === "Coho" ? 2 : 4}
+                    />
+                  );
+                })
+              ))}
             </>
           )}
-          {/* {showPoints && compareValue === "option3" && (
-            <>
-            <FishLayer data={cohoCollPoints} color='blue' markersize={2} />
-            <FishLayer data={chinookCollPoints} color='brown' markersize={4} />
-            <FishLayer data={steelheadCollPoints} color='green' markersize={4} />
-            <FishLayer data={cohoPoints} color='cyan' markersize={2} />
-            <FishLayer data={chinookPoints} color='salmon' markersize={4} />
-            <FishLayer data={steelheadPoints} color='yellowgreen' markersize={4} />
-            <FishLayer data={unkSpeciesPoints} color='slategray' markersize={2} />
-            </>
-          )}     */}
 
           {/* Option 4: Plot fish positions with no color-coding */}
           {showPoints && compareValue === "option4" && (
             <>
-            <FishLayer data={cohoPoints} color='blue' markersize={2} />
-            <FishLayer data={chinookPoints} color='blue' markersize={4} />
-            <FishLayer data={steelheadPoints} color='blue' markersize={4} />
-            <FishLayer data={unkSpeciesPoints} color='blue' markersize={2} />
+            {groups.map(group => (
+                species.map(species0 => {
+                  const dataKey = `${group} ${species0}`;
+                  const dataPoints = {
+                    "collected Coho": cohoCollPoints,
+                    "collected Chinook": chinookCollPoints,
+                    "collected Steelhead": steelheadCollPoints,
+                    "atlarge Coho": cohoPoints,
+                    "atlarge Chinook": chinookPoints,
+                    "atlarge Steelhead": steelheadPoints,
+                    "atlarge Unknown": unkSpeciesPoints
+                  }[dataKey];
+                  return dataPoints && (
+                    <FishLayer
+                      key={dataKey}
+                      data={dataPoints}
+                      color={getColors('All Fish')}
+                      markersize={species0 === "Coho" ? 2 : 4}
+                    />
+                  );
+                })
+              ))}
             </>
           )}     
-        <Legend groups={groups} species={species} compareValue={compareValue} />
+        <Legend groups={groups} species={species} compareValue={compareValue} getColors={getColors} />
         </MapContainer>
     );
 };

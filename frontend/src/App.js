@@ -8,8 +8,8 @@ function App() {
   const [animate, setAnimate] = useState(false);
   const [clearAnimation, setClearAnimation] = useState(false);
   const [showPoints, setShowPoints] = useState(true);
-  const [selectedSpecies, setSelectedSpecies] = useState([]);
-  const [selectedGroups, setSelectedGroups] = useState([]);
+  const [selectedSpecies, setSelectedSpecies] = useState(["Coho", "Chinook", "Steelhead", "Unknown"]);
+  const [selectedGroups, setSelectedGroups] = useState(["collected", "atlarge"]);
   
   const handleRadioChange = (value) => {setCompareValue(value);};
 
@@ -45,7 +45,6 @@ function App() {
         <LeafletMap compareValue={compareValue} showPoints={showPoints} animate={animate} clearAnimation={clearAnimation} groups={selectedGroups} species={selectedSpecies}/>
 
         <div className = "column">
-            {/* <div className = "card auto-height"> <Legend compareValue={compareValue} groups={selectedGroups} species={selectedSpecies}/></div> */}
 
             <div className="card auto-height">
                 <h2>Select Species</h2>
@@ -100,7 +99,7 @@ function App() {
                         <label
                             htmlFor="option2"
                             className = "radioLabel">
-                            Fish by Species
+                            Species
                         </label>
                     </div>
                     <div className="radioButton">
@@ -116,7 +115,7 @@ function App() {
                         <label
                             htmlFor="option3"
                             className = "radioLabel">
-                            Species and Group
+                            Species and Groups
                         </label>
                     </div>                     
                      <div className="radioButton">
