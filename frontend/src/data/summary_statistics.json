@@ -1,0 +1,32 @@
+{
+    "columns":[
+        "Group",
+        "Number of Fish",
+        "Number of Points",
+        "Mean Latitude",
+        "Mean Longitude",
+        "Mean Depth (m)"
+    ],
+    "index":[
+        0,
+        1
+    ],
+    "data":[
+        [
+            "Collected",
+            85,
+            7047.0,
+            47.1552333143,
+            -122.6825741426,
+            8.7923165541
+        ],
+        [
+            "At Large",
+            97,
+            22922.0,
+            47.1553032733,
+            -122.6829176984,
+            10.917891827
+        ]
+    ]
+}
