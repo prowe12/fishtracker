@@ -166,40 +166,6 @@ ul {
   margin-left: 0;
 }
 
-.blue {
-  background-color: blue;
-}
-.brown {
-  background-color: brown;
-}
-.green {
-  background-color: green;
-}
-.gray {
-  background-color: gray;
-}
-
-.cyan {
-  background-color: cyan;
-}
-.salmon {
-  background-color: salmon;
-}
-.greenyellow {
-  background-color: greenyellow;
-}
-.slategray {
-  background-color: slategray;
-}
-
-.dot {
-  height: 12px;
-  width: 12px;
-  border-radius: 50%;
-  display: inline-block;
-  margin-right: 10px;
-  margin-left: 0px;
-}
 
 button {
   padding: 5px;
