@@ -54,9 +54,9 @@ html, body {
 .app-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 20px 100px;
 }
 
@@ -109,21 +109,6 @@ html, body {
   height: auto;
 }
 
-/* .column2 {
-  float: left;
-  width: 75%;
-  padding: 0px 0px;
-  background-color: white;
-} */
-
-
-
-
-/* div.map-container > div {
-  width: 50%;
-  height: 50vh;
-} */
-
 
 .grid-container {
   display: grid;
@@ -141,7 +126,7 @@ html, body {
   justify-content: flex-start;
 }
 
-
+/* TODO: Improve styling of radio button */
 /* .radioGroup {
     display: flex;
     flex-direction: column;
@@ -286,4 +271,34 @@ input:checked + .toggle-label:after {
   margin-top: 2px;
   opacity: 0.7;
   border-radius: 50%;
+}
+
+/* Table styling */
+.table-container {
+  margin: 20px;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+tr:hover {
+  background-color: #f1f1f1;
 }
