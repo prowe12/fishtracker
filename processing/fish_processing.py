@@ -89,6 +89,7 @@ FISHPOS_FILE = "fishPos_20190604.csv"
 PIT_FILE = "PIT_CE.xlsx"
 FNAME_COLLECTED = "fish_collected.json"
 FNAME_ATLARGE = "fish_atlarge.json"
+FNAME_SUMMARY = "summary_statistics.json"
 
 # Parameters
 COLLECTION_POINT = "Final Collection Point "
@@ -106,6 +107,7 @@ MAKE_FIGURES = False  # Create visualizations
 SAVE_HEATMAPS = False
 SAVE_BY_SPECIES = False
 SAVE_BY_COLLECTED = False
+SAVE_SUMMARY_STATISTICS = True
 # # # # # # # # # # # # # # # # # #  # # # # # # # # # #
 
 
@@ -207,6 +209,40 @@ if SAVE_BY_COLLECTED:
     df_collected.to_json(FNAME_COLLECTED, orient="split", indent=4)
     df_atlarge.to_json(FNAME_ATLARGE, orient="split", indent=4)
 
+if SAVE_SUMMARY_STATISTICS:
+
+    df = df_collected
+    nfish1 = len(df["atag"].unique())
+    npts1 = df.describe()["X"]["count"]
+    meanlon1 = df.describe()["X"]["mean"]
+    meanlat1 = df.describe()["Y"]["mean"]
+    meandepth1 = df.describe()["Z"]["mean"]
+
+    df = df_atlarge
+    nfish2 = len(df["atag"].unique())
+    npts2 = df.describe()["X"]["count"]
+    meanlon2 = df.describe()["X"]["mean"]
+    meanlat2 = df.describe()["Y"]["mean"]
+    meandepth2 = df.describe()["Z"]["mean"]
+
+    df_summary = pd.DataFrame(
+        data=[
+            ["Collected", nfish1, npts1, meanlat1, meanlon1, meandepth1],
+            ["At Large", nfish2, npts2, meanlat2, meanlon2, meandepth2],
+        ],
+        columns=[
+            "Group",
+            "Number of Fish",
+            "Number of Points",
+            "Mean Latitude",
+            "Mean Longitude",
+            "Mean Depth (m)",
+        ],
+        dtype=None,
+        copy=False,
+    )
+
+    df_summary.to_json(FNAME_SUMMARY, orient="split", indent=4)
 
 if SAVE_HEATMAPS:
     # Save heatmaps for collect/at-large to json files
