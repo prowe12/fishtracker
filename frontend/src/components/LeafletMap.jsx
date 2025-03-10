@@ -84,6 +84,32 @@ function LeafletMap({ compareValue, showPoints, animate, clearAnimation, groups,
         })
       ));
     }
+
+    function renderAnimations(groups, species, compareValue, getColorsNested) {
+      return groups.map(group => (
+        species.map(species0 => {
+          const dataKey = `${group} ${species0}`;
+          const dataPoints = {
+            "collected Coho": cohoCollPoints,
+            "collected Chinook": chinookCollPoints,
+            "collected Steelhead": steelheadCollPoints,
+            "atlarge Coho": cohoPoints,
+            "atlarge Chinook": chinookPoints,
+            "atlarge Steelhead": steelheadPoints,
+            "atlarge Unknown": unkSpeciesPoints
+          }[dataKey];
+          return dataPoints && (
+            <CollectedTrajectory 
+              key={dataKey} 
+              data={dataPoints} 
+              animate={animate} 
+              clearAnimation={clearAnimation} 
+              color={getColorsNested(group, species0, compareValue)}/>
+          );
+        })
+      ));
+    }
+    
     
     useEffect(() => {
       const points = collectedData.data.map(row => [row[3], row[4]]);
@@ -134,14 +160,10 @@ function LeafletMap({ compareValue, showPoints, animate, clearAnimation, groups,
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
-          {/* Show the fish tracks with time */}
-          <CollectedTrajectory data={cohoCollPoints} animate={animate} clearAnimation={clearAnimation} color="blue"/>
-
-          <CollectedTrajectory data={chinookCollPoints} animate={animate} clearAnimation={clearAnimation} color="blue"/>
-
-          {renderFishLayers(groups, species, compareValue, getColorsNested) }
-
-        <Legend groups={groups} species={species} compareValue={compareValue} />
+          {showPoints && renderFishLayers(groups, species, compareValue, getColorsNested) }
+          {renderAnimations(groups, species, compareValue, getColorsNested) }
+          
+          <Legend groups={groups} species={species} compareValue={compareValue} />
         
         </MapContainer>
     );
