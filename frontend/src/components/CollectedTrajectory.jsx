@@ -3,7 +3,7 @@ import { useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
-function CollectedTrajectory({ data, animate, clearAnimation }) {
+function CollectedTrajectory({ data, animate, clearAnimation, color }) {
     const map = useMap();
     const indexRef = useRef(0);
     const circlesRef = useRef([]);
@@ -30,6 +30,7 @@ function CollectedTrajectory({ data, animate, clearAnimation }) {
               radius: 4,
               interactive: false,
               fillOpacity: 0.5,
+              color: color,
               stroke: false
             }).addTo(map);
             circlesRef.current.push(circle);
@@ -62,7 +63,7 @@ function CollectedTrajectory({ data, animate, clearAnimation }) {
         }
         }
       }
-    }, [map, data, animate]);
+    }, [map, data, animate, color]);
   
     return null;
   };
