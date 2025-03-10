@@ -19,20 +19,21 @@ function getColorsNested(group, species, compareValue) {
             }
     
         case 'option3':
-            switch (species) {
-                case 'Coho': return 'blue';
-                case 'Chinook': return 'brown';
-                case 'Steelhead': return 'green';
+            if (group === "collected") {
+                switch (species) {
+                    case 'Coho': return 'blue';
+                    case 'Chinook': return 'purple';
+                    case 'Steelhead': return 'green';
+                }
+            }
+            else if (group === "atlarge") {
+                switch (species) {
+                case 'Coho': return 'cyan';
+                case 'Chinook': return 'pink';
+                case 'Steelhead': return 'greenyellow';
                 case 'Unknown': return 'gray';
-                case 'collected Coho': return 'blue';
-                case 'collected Chinook': return 'brown';
-                case 'collected Steelhead': return 'green';
-
-                case 'atlarge Coho': return 'cyan';
-                case 'atlarge Chinook': return 'salmon';
-                case 'atlarge Steelhead': return 'greenyellow';
-                case 'atlarge Unknown': return 'gray';
                 default: return 'red';
+                }
             }
         
         case 'option4':

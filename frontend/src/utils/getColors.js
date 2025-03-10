@@ -1,3 +1,10 @@
+/**
+ * Returns the color associated with fish group and species
+ * 
+ * @param {string} category - The category of fish.
+ * @returns {string} The color associated with the category.
+ */
+// TODO: This code duplicates the getColorsNested.js file. Refactor to use that file.
 function getColors(category) {
   switch (category) {
       case 'collected': return 'blue';
@@ -9,7 +16,7 @@ function getColors(category) {
       case 'Unknown': return 'gray';
       
       case 'collected Coho': return 'blue';
-      case 'collected Chinook': return 'brown';
+      case 'collected Chinook': return 'purple';
       case 'collected Steelhead': return 'green';
 
       case 'atlarge Coho': return 'cyan';
