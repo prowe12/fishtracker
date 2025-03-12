@@ -5,7 +5,7 @@
  * @returns {string} The color associated with the category.
  */
 // TODO: This code duplicates the getColorsNested.js file. Refactor to use that file.
-function getColors(category) {
+function getColors(category: string): string {
   switch (category) {
       case 'collected': return 'blue';
       case 'atlarge': return 'orange';

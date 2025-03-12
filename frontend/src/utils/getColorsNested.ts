@@ -1,6 +1,16 @@
-
-
-function getColorsNested(group, species, compareValue) {
+/**
+ * Returns the color for a group of fish. compareValue determines what groups are
+ * contrasted. E.g.
+ * Option 1: One color for collected fish, another for at large fish.
+ * Option 2: One color for each species.
+ * Option 3: One color for each species in collected and at-large.
+ * 
+ * @param group - The group of fish: collected or at-large
+ * @param species - The species: Coho, Chinook, Steelhead, or Unknown
+ * @param compareValue - The option indicating which groups to color-contrast.
+ * @returns {string} The color for the species or group of fish.
+ */
+function getColorsNested(group:string, species:string, compareValue:string): string {
     switch (compareValue) {
         case 'option1':
             switch (group) {
