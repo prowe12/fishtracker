@@ -15,13 +15,13 @@ function SummaryStatistics() {
             <table>
                 <thead>
                     <tr>
-                        {summary_statistics.columns.map((column:string, index:number) => (
+                        {summaryStatistics.columns.map((column:string, index:number) => (
                             <th key={index}>{column}</th>
                         ))}
                     </tr>
                 </thead>
                 <tbody>
-                    {summary_statistics.data.map((row: (string|number)[], index:number) => (
+                    {summaryStatistics.data.map((row: (string|number)[], index:number) => (
                         <tr key={index}>
                             <td>{row[0]}</td>
                             <td>{row[1]}</td>
