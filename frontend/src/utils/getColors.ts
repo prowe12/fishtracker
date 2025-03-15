@@ -1,8 +1,8 @@
 /**
  * Returns the color associated with fish group and species
  * 
- * @param {string} category - The category of fish.
- * @returns {string} The color associated with the category.
+ * @param category - The category of fish.
+ * @returns - The color associated with the category.
  */
 // TODO: This code duplicates the getColorsNested.js file. Refactor to use that file.
 function getColors(category: string): string {

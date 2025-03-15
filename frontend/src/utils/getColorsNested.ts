@@ -8,7 +8,7 @@
  * @param group - The group of fish: collected or at-large
  * @param species - The species: Coho, Chinook, Steelhead, or Unknown
  * @param compareValue - The option indicating which groups to color-contrast.
- * @returns {string} The color for the species or group of fish.
+ * @returns - The color for the species or group of fish.
  */
 function getColorsNested(group:string, species:string, compareValue:string): string {
     switch (compareValue) {
