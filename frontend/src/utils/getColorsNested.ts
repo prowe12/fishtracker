@@ -38,13 +38,14 @@ function getColorsNested(group:string, species:string, compareValue:string): str
             }
             else if (group === "atlarge") {
                 switch (species) {
-                case 'Coho': return 'cyan';
-                case 'Chinook': return 'pink';
-                case 'Steelhead': return 'greenyellow';
-                case 'Unknown': return 'gray';
-                default: return 'red';
+                    case 'Coho': return 'cyan';
+                    case 'Chinook': return 'pink';
+                    case 'Steelhead': return 'greenyellow';
+                    case 'Unknown': return 'gray';
+                    default: return 'red';
                 }
             }
+            return 'red';
         
         case 'option4':
             return 'blue';
