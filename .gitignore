@@ -9,6 +9,8 @@ node_modules
 .pnp.js
 package-lock.json
 
+# Build output
+dist/
 
 # testing
 /coverage
