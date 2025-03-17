@@ -3,11 +3,19 @@ import { useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
-function CollectedTrajectory({ data, animate, clearAnimation, color }) {
+
+interface CollectedTrajectoryProps {
+  data: number[][];
+  animate: boolean;
+  clearAnimation: boolean;
+  color: string;
+}
+
+function CollectedTrajectory({ data, animate, clearAnimation, color }: CollectedTrajectoryProps) {
     const map = useMap();
     const indexRef = useRef(0);
-    const circlesRef = useRef([]);
-    const intervalRef = useRef(null);
+    const circlesRef = useRef<L.Circle[]>([]);
+    const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
     useEffect(() => {
       if (clearAnimation) {
@@ -22,10 +30,13 @@ function CollectedTrajectory({ data, animate, clearAnimation, color }) {
     }, [map, clearAnimation]);
   
     useEffect(() => {
-      if (map && data.length > 0 && animate) {
+      const keys = Object.keys(data);
+      const hasNonEmptyData = (data.length >0 && data[0].length > 0);
+
+      if (map && hasNonEmptyData && animate) {
         const interval = setInterval(() => {
-          if (indexRef.current < data.length) {
-            const [lon, lat] = data[indexRef.current];
+          if (indexRef.current < keys.length) {
+            const [lon, lat] = data[0];
             const circle = L.circle([lat, lon], {
               radius: 4,
               interactive: false,
@@ -40,7 +51,7 @@ function CollectedTrajectory({ data, animate, clearAnimation, color }) {
           // Fade out and remove circles
           circlesRef.current = circlesRef.current.filter(circle => {
             let opacity = circle.options.fillOpacity;
-            if (opacity > 0.02) {
+            if (typeof(opacity) === 'number' && opacity > 0.02) {
               opacity -= 0.02;
               circle.setStyle({ fillOpacity: opacity });
               return true;
@@ -50,7 +61,7 @@ function CollectedTrajectory({ data, animate, clearAnimation, color }) {
             }
           });
   
-          if (indexRef.current >= data.length && circlesRef.current.length === 0) {
+          if (indexRef.current >= keys.length && circlesRef.current.length === 0) {
             clearInterval(interval);
           }
         }, 1);
