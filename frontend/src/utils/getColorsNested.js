@@ -24,6 +24,7 @@ function getColorsNested(group, species, compareValue) {
                     case 'Coho': return 'blue';
                     case 'Chinook': return 'purple';
                     case 'Steelhead': return 'green';
+                    default: return 'red';
                 }
             }
             else if (group === "atlarge") {
@@ -35,6 +36,7 @@ function getColorsNested(group, species, compareValue) {
                 default: return 'red';
                 }
             }
+            return 'red';
         
         case 'option4':
             return 'blue';
