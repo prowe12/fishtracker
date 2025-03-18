@@ -2,16 +2,39 @@ import React, { useRef, useEffect, useState} from "react";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-
-import collectedData from "../data/fish_collected.json";
-import atlargeData from "../data/fish_atlarge.json";
 import Legend from './Legend';
 import getColorsNested from '../utils/getColorsNested';
 import CollectedTrajectory from './CollectedTrajectory';
+import collectedData from "../data/fish_collected.json";
+import atlargeData from "../data/fish_atlarge.json";
 
-const FishLayer = ({ data, color, markersize }) => {
+interface FishData {
+  columns: string[];
+  data: (string | number)[][];
+}
+
+const collectedDataTyped: FishData = collectedData as FishData;
+const atlargeDataTyped: FishData = atlargeData as FishData;
+
+
+interface FishLayerProps {
+  data: number[][],
+  color: string,
+  markersize: number
+};
+
+interface LeafletMapProps {
+  compareValue: string,
+  showPoints: boolean,
+  animate: boolean,
+  clearAnimation: boolean,
+  groups: string[],
+  species: string[]
+}
+
+function FishLayer ({ data, color, markersize }: FishLayerProps) {
   const map = useMap();
-  const layerRef = useRef(null);
+  const layerRef = useRef<L.LayerGroup | null>(null);
 
   useEffect(() => {
     if (map && data.length > 0) {
@@ -40,27 +63,29 @@ const FishLayer = ({ data, color, markersize }) => {
   return null;
 };
 
-function getSubset(data, species) {
-  return data.filter(row => row[2] === species).map(row => [row[3], row[4]]);
+function getSubset(data: (string | number)[][], species: string) {
+  return data
+    .filter(row => row[2] === species)
+    .map(row => [Number(row[3]), Number(row[4])]);
 }
 
 
-function LeafletMap({ compareValue, showPoints, animate, clearAnimation, groups, species }) {
-    const [collectedPoints, setCollectedPoints] = useState([]);
-    const [atlargePoints, setAtlargePoints] = useState([]);
-    const [cohoCollPoints, setCohoCollPoints] = useState([]);
-    const [chinookCollPoints, setChinookCollPoints] = useState([]);
-    const [steelheadCollPoints, setSteelheadCollPoints] = useState([]);
-    const [cohoPoints, setCohoPoints] = useState([]);
-    const [chinookPoints, setChinookPoints] = useState([]);
-    const [steelheadPoints, setSteelheadPoints] = useState([]);
-    const [unkSpeciesPoints, setUnkSpeciesPoints] = useState([]);
+function LeafletMap({ compareValue, showPoints, animate, clearAnimation, groups, species }: LeafletMapProps) {
+    const [collectedPoints, setCollectedPoints] = useState<number[][]>([]);
+    const [atlargePoints, setAtlargePoints] = useState<number[][]>([]);
+    const [cohoCollPoints, setCohoCollPoints] = useState<number[][]>([]);
+    const [chinookCollPoints, setChinookCollPoints] = useState<number[][]>([]);
+    const [steelheadCollPoints, setSteelheadCollPoints] = useState<number[][]>([]);
+    const [cohoPoints, setCohoPoints] = useState<number[][]>([]);
+    const [chinookPoints, setChinookPoints] = useState<number[][]>([]);
+    const [steelheadPoints, setSteelheadPoints] = useState<number[][]>([]);
+    const [unkSpeciesPoints, setUnkSpeciesPoints] = useState<number[][]>([]);
 
     const mapRef = useRef(null);
     const latitude = 47.1555;
     const longitude = -122.683;
-    
-    function renderFishLayers(groups, species, compareValue, getColorsNested) {
+
+    function renderFishLayers(groups: string[], species: string[], compareValue: string, getColorsNested: (group: string, species: string, compareValue: string) => string) {
       return groups.map(group => (
         species.map(species0 => {
           const dataKey = `${group} ${species0}`;
@@ -85,7 +110,7 @@ function LeafletMap({ compareValue, showPoints, animate, clearAnimation, groups,
       ));
     }
 
-    function renderAnimations(groups, species, compareValue, getColorsNested) {
+    function renderAnimations(groups: string[], species: string[], compareValue: string, getColorsNested: (group: string, species: string, compareValue: string) => string) {
       return groups.map(group => (
         species.map(species0 => {
           const dataKey = `${group} ${species0}`;
@@ -110,18 +135,22 @@ function LeafletMap({ compareValue, showPoints, animate, clearAnimation, groups,
       ));
     }
     
-    
     useEffect(() => {
-      const points = collectedData.data.map(row => [row[3], row[4]]);
+      const points = (collectedData as FishData).data.map(row => [Number(row[3]), Number(row[4])]);
       setCollectedPoints(points);
     }, []);
 
     useEffect(() => {
-      const points = atlargeData.data.map(row => [row[3], row[4]]);
+      const points = collectedDataTyped.data.map(row => [Number(row[3]), Number(row[4])]);
+      setCollectedPoints(points);
+    }, []);
+    
+    useEffect(() => {
+      const points = atlargeDataTyped.data.map(row => [Number(row[3]), Number(row[4])]);
       setAtlargePoints(points);
     }, []);
 
-    const setPoints = (data, species, setState) => {
+    const setPoints = (data: (string | number)[][], species: string, setState: React.Dispatch<React.SetStateAction<number[][]>>) => {
       if (data.length > 0) {
         const points = getSubset(data, species);
         setState(prevPoints => [...prevPoints, ...points]);
@@ -135,7 +164,7 @@ function LeafletMap({ compareValue, showPoints, animate, clearAnimation, groups,
         { species: 'Steelhead', setState: setSteelheadCollPoints },
       ];
       speciesList.forEach(({ species, setState }) => {
-        setPoints(collectedData.data, species, setState);
+        setPoints(collectedDataTyped.data, species, setState);
       });
     }, [collectedPoints]);
 
@@ -148,7 +177,7 @@ function LeafletMap({ compareValue, showPoints, animate, clearAnimation, groups,
       ];
 
       speciesList.forEach(({ species, setState }) => {
-        setPoints(atlargeData.data, species, setState);
+        setPoints(atlargeDataTyped.data, species, setState);
       });
     }, [atlargePoints]);
 
