@@ -5,17 +5,23 @@ import L from "leaflet";
 
 import getColors from '../utils/getColors';
 
-const Legend = ({groups, species, compareValue}) => {
+interface LegendProps {
+  groups: string[];
+  species: string[];
+  compareValue: string;
+}
+
+function Legend({groups, species, compareValue}:LegendProps) {
     const map = useMap();
   
     useEffect(() => {
       if (map) {
-        var legend = L.control({ position: 'topright' });
+        var legend = new L.Control({ position: 'topright' });
         legend.onAdd = function (map) {
         var div = L.DomUtil.create('div', 'info legend');
         var labels = ['<strong>Categories</strong>'];
 
-        var categories = [];
+        var categories:string[] = [];
         if (compareValue === 'option1') {
             // Show one color for each group
             categories = groups;
