@@ -1,3 +1,4 @@
+import React from "react";
 import summary_statistics from "../data/summary_statistics.json";
 
 function SummaryStatistics() {
@@ -18,9 +19,9 @@ function SummaryStatistics() {
                             <td>{row[0]}</td>
                             <td>{row[1]}</td>
                             <td>{row[2]}</td>
-                            <td>{row[3].toFixed(5)}</td>
-                            <td>{row[4].toFixed(5)}</td>
-                            <td>{row[5].toFixed(1)}</td>
+                            <td>{typeof(row[3]) === 'number'? row[3].toFixed(5): row[3]}</td>
+                            <td>{typeof(row[4]) === 'number'? row[4].toFixed(5): row[4]}</td>
+                            <td>{typeof(row[5]) === 'number'? row[5].toFixed(1): row[5]}</td>
                         </tr>
                     ))}
                 </tbody>
