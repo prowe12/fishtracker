@@ -1,6 +1,12 @@
-
-
-function getColorsNested(group, species, compareValue) {
+/**
+ * Returns the color associated with fish group and species
+ * 
+ * @param group - The group of fish: collected or atlarge
+ * @param species - The species: Coho, Chinook, Steelhead, or Unknown
+ * @param compareValue - The option indicating which groups & species to compare by coloring them differently.
+ * @returns The color associated with the group and species.
+ */
+function getColorsNested(group: string, species: string, compareValue: string) {
     switch (compareValue) {
         case 'option1':
             switch (group) {
