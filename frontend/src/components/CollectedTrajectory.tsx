@@ -3,11 +3,18 @@ import { useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
-function CollectedTrajectory({ data, animate, clearAnimation, color }) {
+interface collectedTrajectoryProps {
+    data: number[][];
+    animate: boolean;
+    clearAnimation: boolean;
+    color: string; 
+}
+
+function CollectedTrajectory({ data, animate, clearAnimation, color }: collectedTrajectoryProps) {
     const map = useMap();
     const indexRef = useRef(0);
-    const circlesRef = useRef([]);
-    const intervalRef = useRef(null);
+    const circlesRef = useRef<L.Circle[]>([]);
+    const intervalRef = useRef<null | NodeJS.Timeout>(null);
   
     useEffect(() => {
       if (clearAnimation) {
@@ -22,11 +29,11 @@ function CollectedTrajectory({ data, animate, clearAnimation, color }) {
     }, [map, clearAnimation]);
   
     useEffect(() => {
-      if (map && data.length > 0 && animate) {
+      if (map && data.length > 0 && data[0].length>0 && animate) {
         const interval = setInterval(() => {
           if (indexRef.current < data.length) {
             const [lon, lat] = data[indexRef.current];
-            const circle = L.circle([lat, lon], {
+            const circle:L.Circle = L.circle([lat, lon], {
               radius: 4,
               interactive: false,
               fillOpacity: 0.5,
@@ -39,8 +46,11 @@ function CollectedTrajectory({ data, animate, clearAnimation, color }) {
   
           // Fade out and remove circles
           circlesRef.current = circlesRef.current.filter(circle => {
-            let opacity = circle.options.fillOpacity;
-            if (opacity > 0.02) {
+            let opacity:(number|undefined) = circle.options.fillOpacity;
+            if (opacity === undefined) {
+              opacity = 0.5;
+              return true;
+            } else if (opacity > 0.02) {
               opacity -= 0.02;
               circle.setStyle({ fillOpacity: opacity });
               return true;
@@ -59,8 +69,8 @@ function CollectedTrajectory({ data, animate, clearAnimation, color }) {
   
         return () => {
           if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-        }
+            clearInterval(intervalRef.current);
+          }
         }
       }
     }, [map, data, animate, color]);
