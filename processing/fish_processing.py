@@ -307,7 +307,16 @@ if MAKE_FIGURES:
     axes[1, 1].hist2d(fish_atlarge["X"], fish_atlarge["Z"], bins=bins, density=norm)
     axes[1, 2].hist2d(fish_atlarge["Y"], fish_atlarge["Z"], bins=bins, density=norm)
     
+    for i in range(2):
+        axes[i, 0].set_xlabel("X")
+        axes[i, 0].set_ylabel("Y")
+        axes[i, 1].set_xlabel("X")
+        axes[i, 2].set_xlabel("Y")
+        for j in range(1,3):
+            axes[i, j].set_ylabel('Z')
+            axes[i, j].invert_yaxis()
     plt.tight_layout()
+
     # fmt: on
 
     # Scatter plots of collected and at-large fish (one plot)
