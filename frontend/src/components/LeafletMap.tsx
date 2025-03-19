@@ -63,10 +63,25 @@ function FishLayer ({ data, color, markersize }: FishLayerProps) {
   return null;
 };
 
-function getSubset(data: (string | number)[][], species: string) {
-  return data
-    .filter(row => row[2] === species)
-    .map(row => [Number(row[3]), Number(row[4])]);
+/**
+ * Helper function to get indices to latitudes and longitudes, since they are easy to mix up!
+ * X is longitude, Y is latitude and points are defined for [X, Y], or [longitude, latitude]
+ * @param columns - The names associated with each element of data in the fish data files.
+ * @returns The index to the longitude and latitude columns.
+ */
+function getLocationIndices(columns: string[]) {
+  return {
+    ilon: columns.indexOf('X'),
+    ilat: columns.indexOf('Y'),
+  };
+}
+
+function getSubset(fishData: FishData, species: string) {
+  const { ilon, ilat } = getLocationIndices(fishData.columns);
+  const ispecies: number = fishData.columns.indexOf('species');
+  return fishData.data
+    .filter(row => row[ispecies] === species)
+    .map(row => [Number(row[ilon]), Number(row[ilat])]);
 }
 
 
@@ -134,25 +149,22 @@ function LeafletMap({ compareValue, showPoints, animate, clearAnimation, groups,
         })
       ));
     }
-    
-    useEffect(() => {
-      const points = (collectedData as FishData).data.map(row => [Number(row[3]), Number(row[4])]);
-      setCollectedPoints(points);
-    }, []);
 
     useEffect(() => {
-      const points = collectedDataTyped.data.map(row => [Number(row[3]), Number(row[4])]);
+      const {ilon, ilat} = getLocationIndices(collectedDataTyped.columns);
+      const points = collectedDataTyped.data.map(row => [Number(row[ilon]), Number(row[ilat])]);
       setCollectedPoints(points);
     }, []);
     
     useEffect(() => {
-      const points = atlargeDataTyped.data.map(row => [Number(row[3]), Number(row[4])]);
+      const {ilon, ilat} = getLocationIndices(atlargeDataTyped.columns);
+      const points = atlargeDataTyped.data.map(row => [Number(row[ilon]), Number(row[ilat])]);
       setAtlargePoints(points);
     }, []);
 
-    const setPoints = (data: (string | number)[][], species: string, setState: React.Dispatch<React.SetStateAction<number[][]>>) => {
-      if (data.length > 0) {
-        const points = getSubset(data, species);
+    const setPoints = (fishData: FishData, species: string, setState: React.Dispatch<React.SetStateAction<number[][]>>) => {
+      if (fishData.data.length > 0) {
+        const points = getSubset(fishData, species);
         setState(prevPoints => [...prevPoints, ...points]);
       }
     };
@@ -164,7 +176,7 @@ function LeafletMap({ compareValue, showPoints, animate, clearAnimation, groups,
         { species: 'Steelhead', setState: setSteelheadCollPoints },
       ];
       speciesList.forEach(({ species, setState }) => {
-        setPoints(collectedDataTyped.data, species, setState);
+        setPoints(collectedDataTyped, species, setState);
       });
     }, [collectedPoints]);
 
@@ -177,7 +189,7 @@ function LeafletMap({ compareValue, showPoints, animate, clearAnimation, groups,
       ];
 
       speciesList.forEach(({ species, setState }) => {
-        setPoints(atlargeDataTyped.data, species, setState);
+        setPoints(atlargeDataTyped, species, setState);
       });
     }, [atlargePoints]);
 
