@@ -30,14 +30,11 @@ function CollectedTrajectory({ data, animate, clearAnimation, color }: Collected
     }, [map, clearAnimation]);
   
     useEffect(() => {
-      const keys = Object.keys(data);
-      const hasNonEmptyData = (data.length >0 && data[0].length > 0);
-
-      if (map && hasNonEmptyData && animate) {
+      if (map && data.length > 0 && data[0].length>0 && animate) {
         const interval = setInterval(() => {
-          if (indexRef.current < keys.length) {
-            const [lon, lat] = data[0];
-            const circle = L.circle([lat, lon], {
+          if (indexRef.current < data.length) {
+            const [lon, lat] = data[indexRef.current];
+            const circle:L.Circle = L.circle([lat, lon], {
               radius: 4,
               interactive: false,
               fillOpacity: 0.5,
@@ -50,8 +47,11 @@ function CollectedTrajectory({ data, animate, clearAnimation, color }: Collected
   
           // Fade out and remove circles
           circlesRef.current = circlesRef.current.filter(circle => {
-            let opacity = circle.options.fillOpacity;
-            if (typeof(opacity) === 'number' && opacity > 0.02) {
+            let opacity:(number|undefined) = circle.options.fillOpacity;
+            if (opacity === undefined) {
+              opacity = 0.5;
+              return true;
+            } else if (opacity > 0.02) {
               opacity -= 0.02;
               circle.setStyle({ fillOpacity: opacity });
               return true;
@@ -61,7 +61,7 @@ function CollectedTrajectory({ data, animate, clearAnimation, color }: Collected
             }
           });
   
-          if (indexRef.current >= keys.length && circlesRef.current.length === 0) {
+          if (indexRef.current >= data.length && circlesRef.current.length === 0) {
             clearInterval(interval);
           }
         }, 1);
@@ -70,8 +70,8 @@ function CollectedTrajectory({ data, animate, clearAnimation, color }: Collected
   
         return () => {
           if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-        }
+            clearInterval(intervalRef.current);
+          }
         }
       }
     }, [map, data, animate, color]);

@@ -307,7 +307,16 @@ if MAKE_FIGURES:
     axes[1, 1].hist2d(fish_atlarge["X"], fish_atlarge["Z"], bins=bins, density=norm)
     axes[1, 2].hist2d(fish_atlarge["Y"], fish_atlarge["Z"], bins=bins, density=norm)
     
+    for i in range(2):
+        axes[i, 0].set_xlabel("X")
+        axes[i, 0].set_ylabel("Y")
+        axes[i, 1].set_xlabel("X")
+        axes[i, 2].set_xlabel("Y")
+        for j in range(1,3):
+            axes[i, j].set_ylabel('Z')
+            axes[i, j].invert_yaxis()
     plt.tight_layout()
+
     # fmt: on
 
     # Scatter plots of collected and at-large fish (one plot)
@@ -328,7 +337,6 @@ if MAKE_FIGURES:
         axes[0, 1].scatter(fish0["X"], fish0["Z"], alpha=0.1, s=0.1, c="orange")
         axes[0, 2].scatter(fish0["Y"], fish0["Z"], alpha=0.1, s=0.1, c="blue")
 
-
     for tag in atag_atlarge:
         fish0 = fish_atlarge[fish_atlarge["atag"] == tag]
         axes[1, 0].scatter(fish0["X"], fish0["Y"], alpha=0.1, s=0.1, c="green")
@@ -340,9 +348,13 @@ if MAKE_FIGURES:
         axes[i, 0].set_ylabel("Y")
         axes[i, 1].set_xlabel("X")
         axes[i, 2].set_xlabel("Y")
+        axes[0, i].set_title('Collected')
+        axes[1, i].set_title('At Large')
         for j in range(1,3):
             axes[i, j].set_ylabel('Z')
             axes[i, j].invert_yaxis()
+    axes[0, 2].set_title('Collected')
+    axes[1, 2].set_title('At Large')
     plt.tight_layout()
     # fmt: on
 

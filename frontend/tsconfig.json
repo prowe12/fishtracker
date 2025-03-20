@@ -1,21 +1,19 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES6",
     "module": "commonjs",
     "strict": true,
+    "jsx": "react",
+    "resolveJsonModule": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "incremental": true,
+    "tsBuildInfoFile": "./.tsbuildinfo",
     "outDir": "./dist",
     "rootDir": "./src",
-    "jsx": "react"
+    "moduleResolution": "node",
   },
-  "include": [
-    "src/**/*",
-    "src/declarations.d.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "**/*.spec.ts"
-  ]
+  "include": ["src/**/*", "src/declarations.d.ts"],
+  "exclude": ["node_modules", "**/*.spec.ts"]
 }
